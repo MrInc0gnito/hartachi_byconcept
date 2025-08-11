@@ -1,77 +1,243 @@
--- Hartachi UI Engine v1 (by Pengi) - Minimal Core Window
--- This script creates a draggable window with title bar, close button, and top info bar.
--- Devs can customize title text and close button color via hc.title() and hc.closebtn()
+-- Hartachi UI Engine v2 (by Pengi)
+-- Adds scrollable customizable top buttons, stacked credits on right,
+-- MacOS-style close button, rounded corners, nicer font.
 
-local hc = {} -- API Table
+local hc = {} -- API table
 local CoreGui = game:GetService("CoreGui")
-local UIS = game:GetService("UserInputService")
 
--- Create Main Window
+-- Clear old UI if exists
+if CoreGui:FindFirstChild("HartachiUI") then
+    CoreGui.HartachiUI:Destroy()
+end
+
 local window = Instance.new("ScreenGui")
 window.Name = "HartachiUI"
 window.ResetOnSpawn = false
 window.Parent = CoreGui
 
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 400, 0, 250)
-mainFrame.Position = UDim2.new(0.5, -200, 0.5, -125)
-mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+mainFrame.Size = UDim2.new(0, 420, 0, 270)
+mainFrame.Position = UDim2.new(0.5, -210, 0.5, -135)
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
 mainFrame.Draggable = true
+mainFrame.ClipsDescendants = true
 mainFrame.Parent = window
+mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+mainFrame.AutomaticSize = Enum.AutomaticSize.None
+mainFrame.BackgroundTransparency = 0
+mainFrame.LayoutOrder = 1
+mainFrame.Selectable = true
+mainFrame.ZIndex = 1
+mainFrame.Name = "MainFrame"
+mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
+mainFrame.Position = UDim2.new(0.5,0,0.5,0)
+mainFrame.Size = UDim2.new(0, 420, 0, 270)
 
--- Title Bar
+-- Rounded corners (UICorner)
+local function addCorner(frame, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = radius
+    corner.Parent = frame
+end
+
+addCorner(mainFrame, UDim.new(0, 12))
+
+-- Title Bar Frame (height 40)
 local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 30)
-titleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+titleBar.Size = UDim2.new(1, 0, 0, 40)
+titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 titleBar.BorderSizePixel = 0
 titleBar.Parent = mainFrame
+addCorner(titleBar, UDim.new(0, 12))
 
--- Title Text
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -60, 1, 0)
-titleLabel.Position = UDim2.new(0, 10, 0, 0)
-titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "Hartachi Window"
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleLabel.TextSize = 16
-titleLabel.Font = Enum.Font.SourceSansBold
-titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-titleLabel.Parent = titleBar
-
--- Close Button
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 50, 1, 0)
-closeBtn.Position = UDim2.new(1, -50, 0, 0)
-closeBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-closeBtn.Text = "X"
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.TextSize = 16
-closeBtn.Font = Enum.Font.SourceSansBold
+-- Close Button (MacOS style)
+local closeBtn = Instance.new("ImageButton")
+closeBtn.Size = UDim2.new(0, 20, 0, 20)
+closeBtn.Position = UDim2.new(0, 10, 0, 10)
+closeBtn.BackgroundColor3 = Color3.fromRGB(255, 95, 86) -- mac red
+closeBtn.BorderSizePixel = 0
+closeBtn.AutoButtonColor = false
 closeBtn.Parent = titleBar
+addCorner(closeBtn, UDim.new(1, 0))
+
+-- White X inside close button
+local closeX = Instance.new("Frame")
+closeX.Size = UDim2.new(1, 0, 1, 0)
+closeX.BackgroundTransparency = 1
+closeX.Parent = closeBtn
+
+local cross1 = Instance.new("Frame")
+cross1.Size = UDim2.new(0, 2, 1, 0)
+cross1.Position = UDim2.new(0.5, -1, 0, 0)
+cross1.BackgroundColor3 = Color3.new(1,1,1)
+cross1.Rotation = 45
+cross1.AnchorPoint = Vector2.new(0.5,0)
+cross1.Parent = closeX
+
+local cross2 = Instance.new("Frame")
+cross2.Size = UDim2.new(0, 2, 1, 0)
+cross2.Position = UDim2.new(0.5, -1, 0, 0)
+cross2.BackgroundColor3 = Color3.new(1,1,1)
+cross2.Rotation = -45
+cross2.AnchorPoint = Vector2.new(0.5,0)
+cross2.Parent = closeX
 
 closeBtn.MouseButton1Click:Connect(function()
     window:Destroy()
 end)
 
--- Top Info Bar (Under Title Bar)
-local infoBar = Instance.new("TextLabel")
-infoBar.Size = UDim2.new(1, 0, 0, 20)
-infoBar.Position = UDim2.new(0, 0, 0, 30)
-infoBar.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-infoBar.BorderSizePixel = 0
-infoBar.Text = "HartachiUI  |  by Pengi"
-infoBar.TextColor3 = Color3.fromRGB(200, 200, 200)
-infoBar.TextSize = 14
-infoBar.Font = Enum.Font.SourceSans
-infoBar.Parent = mainFrame
+-- Title Text centered in title bar
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(0.5, 0, 1, 0)
+titleLabel.Position = UDim2.new(0.25, 0, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Hartachi Window"
+titleLabel.TextColor3 = Color3.fromRGB(230, 230, 230)
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextXAlignment = Enum.TextXAlignment.Center
+titleLabel.TextYAlignment = Enum.TextYAlignment.Center
+titleLabel.Parent = titleBar
 
--- ===== API Functions =====
+-- Scroll container for buttons on left side of title bar
+local buttonsScroll = Instance.new("ScrollingFrame")
+buttonsScroll.Size = UDim2.new(0, 150, 1, 0)
+buttonsScroll.Position = UDim2.new(0, 40, 0, 0)
+buttonsScroll.BackgroundTransparency = 1
+buttonsScroll.BorderSizePixel = 0
+buttonsScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+buttonsScroll.ScrollBarThickness = 4
+buttonsScroll.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
+buttonsScroll.ScrollBarImageColor3 = Color3.fromRGB(180, 180, 180)
+buttonsScroll.AutomaticCanvasSize = Enum.AutomaticSize.X
+buttonsScroll.Parent = titleBar
+buttonsScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+buttonsScroll.ScrollBarThickness = 6
+buttonsScroll.HorizontalScrollBarInset = Enum.ScrollBarInset.Always
+buttonsScroll.ScrollBarImageTransparency = 0.3
+buttonsScroll.ScrollBarImageColor3 = Color3.fromRGB(180,180,180)
+buttonsScroll.VerticalScrollBarInset = Enum.ScrollBarInset.None
+buttonsScroll.ScrollingDirection = Enum.ScrollingDirection.X
+buttonsScroll.ClipsDescendants = true
+
+local buttonsList = Instance.new("UIListLayout")
+buttonsList.FillDirection = Enum.FillDirection.Horizontal
+buttonsList.HorizontalAlignment = Enum.HorizontalAlignment.Left
+buttonsList.SortOrder = Enum.SortOrder.LayoutOrder
+buttonsList.Padding = UDim.new(0, 6)
+buttonsList.Parent = buttonsScroll
+
+-- Credits Frame on right side (fixed)
+local creditsFrame = Instance.new("Frame")
+creditsFrame.Size = UDim2.new(0, 110, 1, 0)
+creditsFrame.Position = UDim2.new(1, -110, 0, 0)
+creditsFrame.BackgroundTransparency = 1
+creditsFrame.BorderSizePixel = 0
+creditsFrame.Parent = titleBar
+
+-- Credits Text labels stacked vertically
+local creditTitle = Instance.new("TextLabel")
+creditTitle.Size = UDim2.new(1, 0, 0.5, 0)
+creditTitle.Position = UDim2.new(0, 0, 0, 0)
+creditTitle.BackgroundTransparency = 1
+creditTitle.Text = "HartachiUI"
+creditTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+creditTitle.TextSize = 14
+creditTitle.Font = Enum.Font.GothamSemibold
+creditTitle.TextXAlignment = Enum.TextXAlignment.Right
+creditTitle.TextYAlignment = Enum.TextYAlignment.Bottom
+creditTitle.Parent = creditsFrame
+
+local creditBy = Instance.new("TextLabel")
+creditBy.Size = UDim2.new(1, 0, 0.5, 0)
+creditBy.Position = UDim2.new(0, 0, 0.5, 0)
+creditBy.BackgroundTransparency = 1
+creditBy.Text = "By Pengi"
+creditBy.TextColor3 = Color3.fromRGB(200, 200, 200)
+creditBy.TextSize = 12
+creditBy.Font = Enum.Font.Gotham
+creditBy.TextXAlignment = Enum.TextXAlignment.Right
+creditBy.TextYAlignment = Enum.TextYAlignment.Top
+creditBy.Parent = creditsFrame
+
+-- Content area below title bar
+local contentArea = Instance.new("Frame")
+contentArea.Size = UDim2.new(1, 0, 1, -40 - 20)
+contentArea.Position = UDim2.new(0, 0, 0, 40 + 20)
+contentArea.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+contentArea.BorderSizePixel = 0
+contentArea.Parent = mainFrame
+addCorner(contentArea, UDim.new(0, 8))
+
+-- API to set title
 function hc.title(newTitle)
     titleLabel.Text = tostring(newTitle)
 end
 
+-- API to add a button to the scroll container
+-- buttons are tables: {text = "Name", icon = "🏠", color = "#FFCC00"}
+-- returns the created button instance for events
+function hc.addButton(btnInfo)
+    assert(type(btnInfo) == "table", "Button info must be a table")
+    local btnText = btnInfo.text or ""
+    local btnIcon = btnInfo.icon or ""
+    local btnColorHex = btnInfo.color or "#AAAAAA"
+
+    -- Convert hex color to Color3
+    local function hexToColor3(hex)
+        hex = hex:gsub("#", "")
+        local r = tonumber(hex:sub(1, 2), 16) or 170
+        local g = tonumber(hex:sub(3, 4), 16) or 170
+        local b = tonumber(hex:sub(5, 6), 16) or 170
+        return Color3.fromRGB(r, g, b)
+    end
+
+    local btnColor = hexToColor3(btnColorHex)
+
+    local button = Instance.new("TextButton")
+    button.BackgroundColor3 = btnColor
+    button.Size = UDim2.new(0, 100, 1, -6)
+    button.AutoButtonColor = false
+    button.TextColor3 = Color3.fromRGB(30, 30, 30)
+    button.TextSize = 14
+    button.Font = Enum.Font.GothamSemibold
+    button.TextXAlignment = Enum.TextXAlignment.Left
+    button.ClipsDescendants = true
+    button.BorderSizePixel = 0
+    button.Parent = buttonsScroll
+
+    -- Round corners
+    addCorner(button, UDim.new(0, 6))
+
+    -- Button text with icon prepended
+    button.Text = btnIcon .. "  " .. btnText
+
+    -- Hover effect
+    button.MouseEnter:Connect(function()
+        button.BackgroundColor3 = btnColor:lerp(Color3.new(1,1,1), 0.2)
+    end)
+    button.MouseLeave:Connect(function()
+        button.BackgroundColor3 = btnColor
+    end)
+
+    -- Update CanvasSize (width = total buttons * button width + padding)
+    local totalButtons = #buttonsScroll:GetChildren()
+    local layout = buttonsList:GetChildren()
+    local buttonCount = 0
+    for _, v in pairs(buttonsScroll:GetChildren()) do
+        if v:IsA("TextButton") then
+            buttonCount = buttonCount + 1
+        end
+    end
+
+    buttonsScroll.CanvasSize = UDim2.new(0, buttonCount * 106, 0, 0) -- 100 width + 6 padding
+
+    return button
+end
+
+-- API to set close button color (override macOS red)
 function hc.closebtn(args)
     if args and args.col then
         local hex = args.col:gsub("#", "")
@@ -82,9 +248,37 @@ function hc.closebtn(args)
     end
 end
 
--- Example defaults:
-hc.title("Hartachi Window")
-hc.closebtn({col = "#FF0000"})
+-- Store buttons for managing default button selection
+local buttonsCreated = {}
 
--- Return API
+function hc.setDefaultButton(buttonInstance)
+    assert(typeof(buttonInstance) == "Instance" and buttonInstance:IsA("TextButton"), "Default button must be a TextButton instance")
+    -- Deselect all buttons first
+    for _, btn in ipairs(buttonsCreated) do
+        btn.TextColor3 = Color3.fromRGB(30, 30, 30)
+        btn.BackgroundTransparency = 0
+        btn.Font = Enum.Font.GothamSemibold
+    end
+    -- Highlight default button with white text and stronger background
+    buttonInstance.TextColor3 = Color3.new(1,1,1)
+    buttonInstance.BackgroundTransparency = 0
+    buttonInstance.Font = Enum.Font.GothamBold
+end
+
+-- Extend addButton to track created buttons
+local oldAddButton = hc.addButton
+hc.addButton = function(btnInfo)
+    local btn = oldAddButton(btnInfo)
+    table.insert(buttonsCreated, btn)
+    return btn
+end
+
+-- Example: add a default button
+local defaultBtn = hc.addButton{ text = "Home", icon = "🏠", color = "#FFCC00" }
+hc.setDefaultButton(defaultBtn)
+
+-- Set default title and close btn color
+hc.title("Hartachi Window")
+hc.closebtn({col = "#FF5F56"}) -- MacOS red
+
 return hc
