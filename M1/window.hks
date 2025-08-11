@@ -88,3 +88,4 @@ hc.closebtn({col = "#FF0000"})
 
 -- Return API
 getgenv().hc = hc
+return hc
